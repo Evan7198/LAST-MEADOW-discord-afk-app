@@ -1,8 +1,12 @@
 <p align="center">
-  <img src="screenshots/preview.png" width="720" alt="Particle Discord BOT 预览"/>
+  <img src="src/粒子LOGO.png" width="120" alt="Particle Logo"/>
 </p>
 
-<h1 align="center">&#10047; Particle Discord BOT</h1>
+<h1 align="center">Particle Discord BOT</h1>
+
+<p align="center">
+  <img src="screenshots/preview.png" width="720" alt="Particle Discord BOT 预览"/>
+</p>
 
 <p align="center">
   <b>Discord 小游戏自动化工具</b><br>

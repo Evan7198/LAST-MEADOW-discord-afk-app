@@ -2,7 +2,7 @@
 let currentLang = 'zh';
 const I18N = {
   zh: {
-    subtitle: '\u2726 自动化助手 v1.0',
+    subtitle: '\u2726 自动化助手 v1.1',
     section_features: '\u2699 功能选择',
     priority_hint: '\u2733 制作/战斗优先，冷却时自动连点冒险',
     mod_autoreturn: '\u27F2 自动返回 - 弹窗确认',
@@ -100,7 +100,7 @@ const I18N = {
     log_warrior_error: '[骑士] {0}',
   },
   en: {
-    subtitle: '\u2726 Auto Assistant v1.0',
+    subtitle: '\u2726 Auto Assistant v1.1',
     section_features: '\u2699 Features',
     priority_hint: '\u2733 Craft/Battle first, Adventure when on cooldown',
     mod_autoreturn: '\u27F2 Auto Return - Popup',
@@ -1182,8 +1182,17 @@ function buildExistsCheck(sel) {
 }
 
 // ========== 主循环 ==========
+let battleBtnGone = false; // 进入战斗后，战斗按钮是否已经消失过（状态驱动替代硬编码宽限期）
+let mainLoopBusy = false; // 防止并发重入
+
 async function mainLoop() {
   if (!running) return;
+  if (mainLoopBusy) return;
+  mainLoopBusy = true;
+  try { await _mainLoop(); } finally { mainLoopBusy = false; }
+}
+
+async function _mainLoop() {
 
   try {
     // ---- 全局：自动返回弹窗检测（最高优先级） ----
@@ -1294,12 +1303,21 @@ async function mainLoop() {
         }
       }
       // 检测战斗入口按钮是否重新出现 = 回到主界面
+      // 状态驱动：必须先确认按钮已消失，再出现才算战斗结束
       if (currentActivity === 'battle' || currentActivity === 'healer' || currentActivity === 'warrior') {
         const btnBack = await window.discordBot.executeInDiscord(buildCheckCode(battleBtnSel));
         if (btnBack && btnBack.exists && btnBack.clickable) {
-          log(t('log_battle_ended'));
-          switchActivity('idle');
+          if (battleBtnGone) {
+            // 按钮曾消失过，现在重新出现 = 真正结束
+            log(t('log_battle_ended'));
+            switchActivity('idle');
+          } else {
+            // 按钮还没消失过（刚进入，UI 还在切换），继续等
+            return;
+          }
         } else {
+          // 按钮不可见 = 确认已进入战斗界面
+          battleBtnGone = true;
           return; // 还在战斗中
         }
       }
@@ -1322,6 +1340,8 @@ async function mainLoop() {
       if (st && st.exists && st.clickable) {
         log(t('log_battle_ready'));
         await window.discordBot.executeInDiscord(buildClickCode(battleBtnSel));
+        currentActivity = 'battle'; // 立即标记，防止并发 mainLoop 切走
+        battleBtnGone = false;
         await sleep(600); // 等界面加载
         // 检测是牧师（翻牌网格）、骑士（盾牌+火球）还是射手（圆圈）
         const modeCheck = await window.discordBot.executeInDiscord(
@@ -1359,9 +1379,14 @@ async function mainLoop() {
 function switchActivity(activity) {
   if (subTimer) { clearInterval(subTimer); clearTimeout(subTimer); subTimer = null; }
   currentActivity = activity;
+  if (activity === 'battle' || activity === 'healer' || activity === 'warrior') {
+    battleBtnGone = false;
+  }
   lastCraftingKeys = '';
   craftingBusy = false;
   healerBusy = false;
+  battleBusy = false;
+  warriorBusy = false;
   setDot('adventure', activity === 'adventure');
   setDot('crafting', activity === 'crafting');
   setDot('battle', activity === 'battle' || activity === 'healer' || activity === 'warrior');
@@ -1444,7 +1469,10 @@ async function craftingTick() {
 }
 
 // ========== 战斗 tick ==========
+let battleBusy = false;
 async function battleTick(selector) {
+  if (battleBusy) return;
+  battleBusy = true;
   const code = `(function(){
     const circles = document.querySelectorAll('${esc(selector)}');
     const targets = [];
@@ -1472,7 +1500,8 @@ async function battleTick(selector) {
       }
       logOnce(t('log_battle_hit', targets.length));
     }
-  } catch (e) { logOnce(t('log_battle_error', e), 'error'); }
+    battleBusy = false;
+  } catch (e) { battleBusy = false; logOnce(t('log_battle_error', e), 'error'); }
 }
 
 // ========== 牧师翻牌 tick ==========
@@ -1570,7 +1599,10 @@ async function healerTick() {
 }
 
 // ========== 骑士接物 tick ==========
+let warriorBusy = false;
 async function warriorTick() {
+  if (warriorBusy) return;
+  warriorBusy = true;
   const code = `(function(){
     const shield = document.querySelector('.shield_cce732');
     if (!shield) return null;
@@ -1599,7 +1631,8 @@ async function warriorTick() {
     if (result && result.targetX) {
       await window.discordBot.mousemoveInDiscord(result.targetX, result.shieldY);
     }
-  } catch (e) { logOnce(t('log_warrior_error', e), 'error'); }
+    warriorBusy = false;
+  } catch (e) { warriorBusy = false; logOnce(t('log_warrior_error', e), 'error'); }
 }
 
 // ========== 启动 / 停止 ==========
