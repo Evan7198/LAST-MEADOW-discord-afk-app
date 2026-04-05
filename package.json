@@ -1,0 +1,45 @@
+{
+  "name": "discord-game-bot",
+  "version": "1.0.0",
+  "description": "Discord 内置小游戏自动化工具 - 支持冒险/制作/战斗三种模式",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "build": "electron-builder --win --x64",
+    "build:dir": "electron-builder --win --x64 --dir"
+  },
+  "author": "",
+  "license": "MIT",
+  "build": {
+    "appId": "com.discord-game-bot",
+    "productName": "Particle Discord BOT",
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "portable": {
+      "artifactName": "ParticleDiscordBOT.exe"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "preload-discord.js",
+      "src/**/*"
+    ],
+    "asar": true
+  },
+  "devDependencies": {
+    "electron": "^33.0.0",
+    "electron-builder": "^25.1.8"
+  }
+}

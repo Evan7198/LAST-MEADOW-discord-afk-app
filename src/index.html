@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Particle Discord BOT</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="panel" id="panel-main">
+    <!-- 可滚动区域 -->
+    <div class="panel-scroll">
+    <!-- 标题 -->
+    <div class="panel-header">
+      <h1>&#10047; Particle Discord BOT</h1>
+      <p data-i18n="subtitle">&#10022; 自动化助手 v1.0</p>
+      <div class="header-tools">
+        <button class="btn-header" id="btn-mute" title="静音/取消静音">&#9835;</button>
+        <label class="dev-toggle" title="DEV">
+          <input type="checkbox" id="chk-devmode">
+          <span class="dev-slider"></span>
+          <span class="dev-label">DEV</span>
+        </label>
+        <a class="btn-header btn-discord" href="#" id="btn-discord-link" title="Join Discord">&#9830; <span>Discord</span></a>
+      </div>
+      <button class="btn-lang-wide" id="btn-lang">&#127760; Language / 语言</button>
+    </div>
+
+    <!-- ===== 功能勾选区 ===== -->
+    <div class="section">
+      <div class="section-title" data-i18n="section_features">&#9881; 功能选择</div>
+      <div class="priority-hint" data-i18n="priority_hint">&#9733; 制作/战斗优先，冷却时自动连点冒险</div>
+
+      <!-- 自动返回（全局） -->
+      <div class="module-row">
+        <label class="checkbox-label">
+          <input type="checkbox" id="chk-autoreturn" checked>
+          <span class="checkmark"></span>
+          <span data-i18n="mod_autoreturn">&#10226; 自动返回 - 弹窗确认</span>
+        </label>
+        <span class="status-dot" id="dot-autoreturn"></span>
+      </div>
+      <div class="module-config" id="config-autoreturn">
+        <div class="config-row dev-only">
+          <label data-i18n="lbl_return_btn">返回按钮</label>
+          <div class="picker-group">
+            <input type="text" id="autoreturn-btn" value="div.footer__0cc07 div.clickable__5c90e" readonly>
+            <button class="btn-pick" data-target="autoreturn-btn" title="选取元素">&#9754;</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 冒险 -->
+      <div class="module-row">
+        <label class="checkbox-label">
+          <input type="checkbox" id="chk-adventure" checked>
+          <span class="checkmark"></span>
+          <span data-i18n="mod_adventure">&#9876; 冒险 - 自动连点</span>
+        </label>
+        <span class="status-dot" id="dot-adventure"></span>
+      </div>
+      <div class="module-config" id="config-adventure">
+        <div class="config-row dev-only">
+          <label data-i18n="lbl_adv_btn">冒险按钮</label>
+          <div class="picker-group">
+            <input type="text" id="adventure-btn" value="div.activityButton__8af73 > div.button__65fca" readonly>
+            <button class="btn-pick" data-target="adventure-btn" title="选取元素">&#9754;</button>
+          </div>
+        </div>
+        <div class="config-row">
+          <label data-i18n="lbl_click_interval">点击间隔</label>
+          <div class="interval-group">
+            <input type="range" id="adventure-interval" min="0" max="2000" value="100">
+            <span class="interval-val" id="adventure-interval-val">100ms</span>
+          </div>
+        </div>
+        <div class="config-row">
+          <label data-i18n="lbl_random_delay">随机延迟</label>
+          <div class="delay-group">
+            <input type="number" id="adventure-delay-min" value="0" min="0" max="5000">
+            <span class="delay-sep">~</span>
+            <input type="number" id="adventure-delay-max" value="50" min="0" max="5000">
+            <span class="delay-unit">ms</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 制作 -->
+      <div class="module-row">
+        <label class="checkbox-label">
+          <input type="checkbox" id="chk-crafting" checked>
+          <span class="checkmark"></span>
+          <span data-i18n="mod_crafting">&#9835; 制作 - 节奏方向键</span>
+        </label>
+        <span class="status-dot" id="dot-crafting"></span>
+      </div>
+      <div class="module-config" id="config-crafting">
+        <div class="config-row dev-only">
+          <label data-i18n="lbl_craft_btn">制作按钮</label>
+          <div class="picker-group">
+            <input type="text" id="crafting-btn" value="div.activityButton__8af73:nth-child(2) > div.button__65fca" readonly>
+            <button class="btn-pick" data-target="crafting-btn" title="选取元素">&#9754;</button>
+          </div>
+        </div>
+        <div class="config-row dev-only">
+          <label data-i18n="lbl_arrow_area">箭头区域</label>
+          <div class="picker-group">
+            <input type="text" id="crafting-container" value="div.root__5c9fc.enterDone__5c9fc > div.container__73695" readonly>
+            <button class="btn-pick" data-target="crafting-container" title="选取元素">&#9754;</button>
+          </div>
+        </div>
+        <div class="config-row dev-only">
+          <label data-i18n="lbl_craft_finish">制作结束</label>
+          <div class="picker-group">
+            <input type="text" id="crafting-finish" value="div.continueButtonWrapper__24749 div.clickable__5c90e" readonly>
+            <button class="btn-pick" data-target="crafting-finish" title="选取元素">&#9754;</button>
+          </div>
+        </div>
+        <div class="config-row">
+          <label data-i18n="lbl_key_delay">按键延迟</label>
+          <div class="delay-group">
+            <input type="number" id="crafting-delay-min" value="80" min="0" max="5000">
+            <span class="delay-sep">~</span>
+            <input type="number" id="crafting-delay-max" value="300" min="0" max="5000">
+            <span class="delay-unit">ms</span>
+          </div>
+        </div>
+        <div class="config-row">
+          <label data-i18n="lbl_scan_interval">扫描间隔</label>
+          <div class="interval-group">
+            <input type="range" id="crafting-interval" min="0" max="500" value="50">
+            <span class="interval-val" id="crafting-interval-val">50ms</span>
+          </div>
+        </div>
+        <button class="btn-snapshot dev-only" id="btn-crafting-snapshot" data-i18n="btn_craft_scan">&#128269; 抓取节奏区域结构</button>
+      </div>
+
+      <!-- ===== 战斗（可折叠父级） ===== -->
+      <div class="module-row">
+        <label class="checkbox-label">
+          <input type="checkbox" id="chk-battle" checked>
+          <span class="checkmark"></span>
+          <span data-i18n="mod_battle">&#9876; 战斗</span>
+        </label>
+        <span class="status-dot" id="dot-battle"></span>
+      </div>
+      <div class="module-config battle-group" id="config-battle">
+        <div class="config-row dev-only">
+          <label data-i18n="lbl_battle_btn">战斗按钮</label>
+          <div class="picker-group">
+            <input type="text" id="battle-btn" value="div.activityButton__8af73:nth-child(3) > div.button__65fca" readonly>
+            <button class="btn-pick" data-target="battle-btn" title="选取元素">&#9754;</button>
+          </div>
+        </div>
+        <div class="config-row dev-only">
+          <label data-i18n="lbl_battle_finish">战斗结束</label>
+          <div class="picker-group">
+            <input type="text" id="battle-finish" value="div.continueButtonWrapper__24749 div.clickable__5c90e" readonly>
+            <button class="btn-pick" data-target="battle-finish" title="选取元素">&#9754;</button>
+          </div>
+        </div>
+
+        <!-- 射手子模块 -->
+        <div class="sub-module">
+          <div class="sub-module-header" data-target="sub-archer">
+            <span class="sub-arrow">&#9654;</span>
+            <span data-i18n="sub_archer">&#127993; 射手 - 点击圆圈</span>
+            <span class="status-dot" id="dot-archer"></span>
+          </div>
+          <div class="sub-module-body collapsed" id="sub-archer">
+            <div class="config-row dev-only">
+              <label data-i18n="lbl_circle_target">圆圈目标</label>
+              <div class="picker-group">
+                <input type="text" id="battle-selector" value="div.container_b6b008 img.target_b6b008" readonly>
+                <button class="btn-pick" data-target="battle-selector" title="选取元素">&#9754;</button>
+              </div>
+            </div>
+            <div class="config-row">
+              <label data-i18n="lbl_click_delay">点击延迟</label>
+              <div class="delay-group">
+                <input type="number" id="battle-delay-min" value="50" min="0" max="5000">
+                <span class="delay-sep">~</span>
+                <input type="number" id="battle-delay-max" value="200" min="0" max="5000">
+                <span class="delay-unit">ms</span>
+              </div>
+            </div>
+            <div class="config-row">
+              <label data-i18n="lbl_scan_interval">扫描间隔</label>
+              <div class="interval-group">
+                <input type="range" id="battle-interval" min="0" max="500" value="50">
+                <span class="interval-val" id="battle-interval-val">50ms</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 牧师子模块 -->
+        <div class="sub-module">
+          <div class="sub-module-header" data-target="sub-healer">
+            <span class="sub-arrow">&#9654;</span>
+            <span data-i18n="sub_healer">&#10010; 牧师 - 翻牌配对</span>
+            <span class="status-dot" id="dot-healer"></span>
+          </div>
+          <div class="sub-module-body collapsed" id="sub-healer">
+            <div class="config-row dev-only">
+              <label data-i18n="lbl_card_area">卡牌区域</label>
+              <div class="picker-group">
+                <input type="text" id="healer-container" value="" readonly>
+                <button class="btn-pick" data-target="healer-container" title="选取元素">&#9754;</button>
+              </div>
+            </div>
+                <div class="config-row">
+              <label data-i18n="lbl_flip_delay">翻牌延迟</label>
+              <div class="delay-group">
+                <input type="number" id="healer-delay-min" value="100" min="0" max="5000">
+                <span class="delay-sep">~</span>
+                <input type="number" id="healer-delay-max" value="400" min="0" max="5000">
+                <span class="delay-unit">ms</span>
+              </div>
+            </div>
+            <div class="config-row">
+              <label data-i18n="lbl_scan_interval">扫描间隔</label>
+              <div class="interval-group">
+                <input type="range" id="healer-interval" min="0" max="500" value="50">
+                <span class="interval-val" id="healer-interval-val">50ms</span>
+              </div>
+            </div>
+            <button class="btn-snapshot dev-only" id="btn-healer-scan" data-i18n="btn_healer_scan">&#128269; 扫描卡牌结构</button>
+          </div>
+        </div>
+
+        <!-- 骑士子模块 -->
+        <div class="sub-module">
+          <div class="sub-module-header" data-target="sub-warrior">
+            <span class="sub-arrow">&#9654;</span>
+            <span data-i18n="sub_warrior">&#9879; 骑士 - 接物圆盘</span>
+            <span class="status-dot" id="dot-warrior"></span>
+          </div>
+          <div class="sub-module-body collapsed" id="sub-warrior">
+            <div class="config-row dev-only">
+              <label data-i18n="lbl_game_area">游戏区域</label>
+              <div class="picker-group">
+                <input type="text" id="warrior-container" value="" readonly>
+                <button class="btn-pick" data-target="warrior-container" title="选取元素">&#9754;</button>
+              </div>
+            </div>
+            <div class="config-row">
+              <label data-i18n="lbl_move_delay">移动延迟</label>
+              <div class="delay-group">
+                <input type="number" id="warrior-delay-min" value="30" min="0" max="5000">
+                <span class="delay-sep">~</span>
+                <input type="number" id="warrior-delay-max" value="100" min="0" max="5000">
+                <span class="delay-unit">ms</span>
+              </div>
+            </div>
+            <div class="config-row">
+              <label data-i18n="lbl_scan_interval">扫描间隔</label>
+              <div class="interval-group">
+                <input type="range" id="warrior-interval" min="0" max="500" value="50">
+                <span class="interval-val" id="warrior-interval-val">50ms</span>
+              </div>
+            </div>
+            <button class="btn-snapshot dev-only" id="btn-warrior-scan" data-i18n="btn_warrior_scan">&#128269; 扫描骑士区域</button>
+          </div>
+        </div>
+      </div>
+
+      </div>
+
+    <!-- ===== 大按钮 ===== -->
+    <div class="start-section">
+      <button class="btn-main" id="btn-start" data-i18n="btn_start">&#9654; 开始运行</button>
+    </div>
+
+    <!-- ===== 工具栏（开发者模式） ===== -->
+    <div class="section dev-only" id="section-tools">
+      <div class="section-title" data-i18n="section_tools">&#9881; 调试工具</div>
+      <div class="tool-row">
+        <button class="btn-tool" id="btn-picker" title="悬停高亮，点击选取" data-i18n="tool_picker">&#9754; 元素选取</button>
+        <button class="btn-tool" id="btn-explorer" title="浏览页面所有元素树" data-i18n="tool_explorer">&#9776; 元素浏览器</button>
+        <button class="btn-tool" id="btn-refresh" title="刷新页面" data-i18n="tool_refresh">&#8635; 刷新</button>
+      </div>
+    </div>
+
+    </div><!-- /.panel-scroll -->
+
+    <!-- 日志（固定在底部） -->
+    <div class="log-section">
+      <div class="section-title" data-i18n="section_log">&#9998; 运行日志</div>
+      <div class="log-box" id="log-box"></div>
+    </div>
+  </div>
+
+  <!-- ===== 元素浏览器面板 ===== -->
+  <div class="panel explorer-panel hidden" id="panel-explorer">
+    <div class="panel-header">
+      <div class="explorer-header-row">
+        <h1 data-i18n="explorer_title">元素浏览器</h1>
+        <button class="btn-close" id="btn-explorer-close" title="关闭">&#10005;</button>
+      </div>
+      <p data-i18n="explorer_hint">点击元素可在页面上高亮，双击复制选择器</p>
+    </div>
+    <div class="explorer-toolbar">
+      <input type="text" id="explorer-search" placeholder="搜索 class / tag / id ...">
+      <button class="btn-tool" id="btn-explorer-refresh" title="刷新元素树">&#8635;</button>
+    </div>
+    <div class="explorer-tree" id="explorer-tree"></div>
+    <div class="explorer-info" id="explorer-info">
+      <div class="info-label">选中元素:</div>
+      <div class="info-selector" id="explorer-selected">无</div>
+      <button class="btn-copy" id="btn-explorer-copy" title="复制选择器">复制</button>
+    </div>
+  </div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>
